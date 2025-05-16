@@ -10,6 +10,21 @@ import subprocess
 app = Flask(__name__)               # Initialize Flask app
 arm = Arm_Device()                  # Initialize the Dofbot arm controller:contentReference[oaicite:2]{index=2}
 
+# Add CORS headers to all responses
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    return response
+
+# Handle OPTIONS requests for CORS preflight
+@app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+@app.route('/<path:path>', methods=['OPTIONS'])
+def handle_options(path):
+    response = Response()
+    return response
+
 '''
 Recommended Safe Operating Ranges:
 
@@ -76,7 +91,7 @@ def set_angles():
             angles[idx] = min_angle
         if angles[idx] > max_angle:
             angles[idx] = max_angle
-    t = args.get("t", 5000)
+    t = int(args.get("t", 5000))
     # Move all 6 servos to the specified angles over 1 second (1000 ms)
     arm.Arm_serial_servo_write6_array(angles, t)
     time.sleep(t / 1000 + 0.5) # wait for move to finish
