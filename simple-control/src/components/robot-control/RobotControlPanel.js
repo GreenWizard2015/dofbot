@@ -13,6 +13,32 @@ import { Card, Typography } from "../ui";
 const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome, onPlayPosition }) => {
   const { newAngles, isPlaying } = useSelector((state) => state.robot);
 
+  console.log("RobotControlPanel props:", {
+    onRefreshAngles: !!onRefreshAngles,
+    onSetAngles: !!onSetAngles,
+    onMoveToHome: !!onMoveToHome,
+    onPlayPosition: !!onPlayPosition
+  });
+
+  // Wrap the functions to add logging
+  const handleSetAngles = () => {
+    console.log("handleSetAngles called in RobotControlPanel");
+    if (typeof onSetAngles === 'function') {
+      onSetAngles();
+    } else {
+      console.error("onSetAngles is not a function:", onSetAngles);
+    }
+  };
+
+  const handleMoveToHome = () => {
+    console.log("handleMoveToHome called in RobotControlPanel");
+    if (typeof onMoveToHome === 'function') {
+      onMoveToHome();
+    } else {
+      console.error("onMoveToHome is not a function:", onMoveToHome);
+    }
+  };
+
   return (
     <>
       <Card className={styles.angleControls}>
@@ -28,7 +54,7 @@ const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome, onPlayP
           <MoveTimeControl disabled={isPlaying} />
         </div>
 
-        <ControlButtons onMove={onSetAngles} onHome={onMoveToHome} disabled={isPlaying} />
+        <ControlButtons onMove={handleSetAngles} onHome={handleMoveToHome} disabled={isPlaying} />
       </Card>
 
       <PositionQueue onPlayPosition={onPlayPosition} />

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../redux/redux-store';
 import { useEffect, useState } from 'react';
+import { ApiProvider } from '../api/ApiContext';
 
 export function Providers({ children }) {
   const [isClient, setIsClient] = useState(false);
@@ -22,11 +23,13 @@ export function Providers({ children }) {
     );
   }
 
-  // Once on the client, render with PersistGate
+  // Once on the client, render with PersistGate and ApiProvider
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        {children}
+        <ApiProvider>
+          {children}
+        </ApiProvider>
       </PersistGate>
     </Provider>
   );

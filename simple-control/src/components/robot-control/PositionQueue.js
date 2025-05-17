@@ -42,26 +42,17 @@ const PositionQueue = ({ onPlayPosition }) => {
   };
 
   const handlePlayToggle = () => {
-    console.log("handlePlayToggle called, current isPlaying:", isPlaying);
-
     if (isPlaying) {
-      console.log("Stopping playback");
       dispatch(setIsPlaying(false));
     } else {
-      console.log("Starting playback, queue length:", positionQueue.length);
-
       if (positionQueue.length > 0) {
         const position = positionQueue[0];
-        console.log("First position in queue:", position);
 
         // Check if position is a valid object with angles array
         if (!position || !position.angles || !Array.isArray(position.angles)) {
-          console.error("Invalid position format in queue:", position);
           dispatch(setStatus("Error: Invalid position format in queue"));
           return;
         }
-
-        console.log("Setting isPlaying to true and starting playback");
 
         // First set the current queue index to ensure we start from the beginning
         dispatch(setCurrentQueueIndex(0));
@@ -71,7 +62,6 @@ const PositionQueue = ({ onPlayPosition }) => {
 
         // Add a small delay to ensure the Redux state is updated before calling onPlayPosition
         setTimeout(() => {
-          console.log("Calling onPlayPosition with position:", position);
           onPlayPosition(position);
         }, 100);
       }
