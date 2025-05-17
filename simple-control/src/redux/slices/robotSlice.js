@@ -9,7 +9,11 @@ const initialState = {
   newAngles: [90, 90, 90, 90, 90, 90],
   moveTime: 1000,
   status: "",
-  imageUrl: ""
+  imageUrl: "",
+  positionQueue: [],
+  isLooping: false,
+  isPlaying: false,
+  currentQueueIndex: 0
 };
 
 export const robotSlice = createSlice({
@@ -49,6 +53,43 @@ export const robotSlice = createSlice({
       state.connected = true;
       state.status = status || "Connected successfully";
       state.imageUrl = imageUrl;
+    },
+    addPositionToQueue: (state) => {
+      // Store position as an object with angles and time
+      state.positionQueue.push({
+        angles: [...state.currentAngles],
+        time: state.moveTime
+      });
+      state.status = "Position added to queue";
+    },
+    updatePositionTime: (state, action) => {
+      const { index, time } = action.payload;
+      if (state.positionQueue[index]) {
+        state.positionQueue[index].time = time;
+      }
+    },
+    removePositionFromQueue: (state, action) => {
+      state.positionQueue.splice(action.payload, 1);
+      if (state.currentQueueIndex >= state.positionQueue.length) {
+        state.currentQueueIndex = Math.max(0, state.positionQueue.length - 1);
+      }
+    },
+    clearPositionQueue: (state) => {
+      state.positionQueue = [];
+      state.currentQueueIndex = 0;
+      state.isPlaying = false;
+    },
+    setIsLooping: (state, action) => {
+      state.isLooping = action.payload;
+    },
+    setIsPlaying: (state, action) => {
+      state.isPlaying = action.payload;
+      if (!action.payload) {
+        state.currentQueueIndex = 0;
+      }
+    },
+    setCurrentQueueIndex: (state, action) => {
+      state.currentQueueIndex = action.payload;
     }
   }
 });
@@ -63,7 +104,14 @@ export const {
   setStatus,
   setImageUrl,
   resetState,
-  updateConnectionData
+  updateConnectionData,
+  addPositionToQueue,
+  updatePositionTime,
+  removePositionFromQueue,
+  clearPositionQueue,
+  setIsLooping,
+  setIsPlaying,
+  setCurrentQueueIndex
 } = robotSlice.actions;
 
 export default robotSlice.reducer;

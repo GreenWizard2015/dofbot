@@ -20,8 +20,8 @@ if (typeof window !== 'undefined') {
   const persistConfig = {
     key: 'root',
     storage,
-    // You can blacklist specific reducers if you don't want to persist them
-    // blacklist: ['someReducer']
+    // Blacklist queue-related fields to prevent them from being persisted
+    blacklist: ['positionQueue', 'isLooping', 'isPlaying', 'currentQueueIndex']
   };
 
   // Manually apply the persisted state to our store

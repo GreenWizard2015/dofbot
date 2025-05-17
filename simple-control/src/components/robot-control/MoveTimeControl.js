@@ -6,11 +6,12 @@ import { setMoveTime } from "../../redux/slices/robotSlice";
 import styles from "../../app/page.module.css";
 import { Typography, Input } from "../ui";
 
-const MoveTimeControl = () => {
+const MoveTimeControl = ({ disabled = false }) => {
   const dispatch = useDispatch();
   const { moveTime } = useSelector((state) => state.robot);
 
   const handleMoveTimeChange = (value) => {
+    if (disabled) return;
     dispatch(setMoveTime(parseInt(value)));
   };
 
@@ -26,6 +27,7 @@ const MoveTimeControl = () => {
           value={moveTime}
           onChange={(e) => handleMoveTimeChange(e.target.value)}
           className={styles.slider}
+          disabled={disabled}
         />
         <Input
           type="number"
@@ -35,6 +37,7 @@ const MoveTimeControl = () => {
           value={moveTime.toString()}
           onChange={(e) => handleMoveTimeChange(e.target.value)}
           style={{ width: '60px', textAlign: 'center' }}
+          disabled={disabled}
         />
       </div>
     </div>

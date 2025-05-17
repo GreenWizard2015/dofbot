@@ -25,10 +25,12 @@ const SERVO_NAMES = [
   "Gripper"
 ];
 
-const ServoControl = ({ index, angle }) => {
+const ServoControl = ({ index, angle, disabled = false }) => {
   const dispatch = useDispatch();
 
   const handleAngleChange = (value) => {
+    if (disabled) return;
+
     // Ensure the angle is within safe range
     const [min, max] = SAFE_ANGLES[index];
     const safeValue = Math.max(min, Math.min(max, parseInt(value) || 0));
@@ -49,6 +51,7 @@ const ServoControl = ({ index, angle }) => {
           value={angle}
           onChange={(e) => handleAngleChange(e.target.value)}
           className={styles.slider}
+          disabled={disabled}
         />
         <Input
           type="number"
@@ -57,6 +60,7 @@ const ServoControl = ({ index, angle }) => {
           value={angle.toString()}
           onChange={(e) => handleAngleChange(e.target.value)}
           style={{ width: '60px', textAlign: 'center' }}
+          disabled={disabled}
         />
       </div>
     </div>

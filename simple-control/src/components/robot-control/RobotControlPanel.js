@@ -7,27 +7,32 @@ import ServoControl from "./ServoControl";
 import MoveTimeControl from "./MoveTimeControl";
 import CurrentAnglesDisplay from "./CurrentAnglesDisplay";
 import ControlButtons from "./ControlButtons";
+import PositionQueue from "./PositionQueue";
 import { Card, Typography } from "../ui";
 
-const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome }) => {
-  const { newAngles } = useSelector((state) => state.robot);
+const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome, onPlayPosition }) => {
+  const { newAngles, isPlaying } = useSelector((state) => state.robot);
 
   return (
-    <Card className={styles.angleControls}>
-      <Typography variant="h2">Servo Controls</Typography>
+    <>
+      <Card className={styles.angleControls}>
+        <Typography variant="h2">Servo Controls</Typography>
 
-      <CurrentAnglesDisplay onRefresh={onRefreshAngles} />
+        <CurrentAnglesDisplay onRefresh={onRefreshAngles} />
 
-      <div className={styles.sliderContainer}>
-        {newAngles.map((angle, index) => (
-          <ServoControl key={index} index={index} angle={angle} />
-        ))}
+        <div className={`${styles.sliderContainer} ${isPlaying ? styles.disabledControl : ''}`}>
+          {newAngles.map((angle, index) => (
+            <ServoControl key={index} index={index} angle={angle} disabled={isPlaying} />
+          ))}
 
-        <MoveTimeControl />
-      </div>
+          <MoveTimeControl disabled={isPlaying} />
+        </div>
 
-      <ControlButtons onMove={onSetAngles} onHome={onMoveToHome} />
-    </Card>
+        <ControlButtons onMove={onSetAngles} onHome={onMoveToHome} disabled={isPlaying} />
+      </Card>
+
+      <PositionQueue onPlayPosition={onPlayPosition} />
+    </>
   );
 };
 

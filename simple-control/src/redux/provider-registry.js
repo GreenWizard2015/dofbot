@@ -15,6 +15,7 @@ const StoreContext = createContext(null);
 const persistConfig = {
   key: 'root',
   storage,
+  blacklist: ['positionQueue', 'isLooping', 'isPlaying', 'currentQueueIndex'],
 };
 
 // Create a persisted reducer
@@ -33,7 +34,7 @@ const createReduxStore = () => {
         },
       }),
   });
-  
+
   const persistor = persistStore(store);
   return { store, persistor };
 };
@@ -45,7 +46,7 @@ export function ReduxProviderClient({ children }) {
   if (!storeRef.current) {
     storeRef.current = createReduxStore();
   }
-  
+
   return (
     <StoreContext.Provider value={storeRef.current}>
       <Provider store={storeRef.current.store}>

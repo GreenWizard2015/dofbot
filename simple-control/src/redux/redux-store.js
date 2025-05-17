@@ -9,6 +9,7 @@ import storage from 'redux-persist/lib/storage';
 const persistConfig = {
   key: 'root',
   storage,
+  blacklist: ['positionQueue', 'isLooping', 'isPlaying', 'currentQueueIndex'],
 };
 
 // Create persisted reducer
