@@ -127,57 +127,6 @@ export function ApiProvider({ children }) {
     };
   }, []);
 
-  // Helper function to get the next position for queue playback
-  const getNextPosition = useCallback((isLooping) => {
-    if (!isMountedRef.current || !apiRef.current) return null;
-
-    const nextIndex = currentQueueIndex + 1;
-
-    // If we have a next position in the queue
-    if (nextIndex < positionQueue.length) {
-      if (isMountedRef.current) {
-        dispatch(setCurrentQueueIndex(nextIndex));
-      }
-      return positionQueue[nextIndex];
-    }
-    // If we're looping and have positions
-    else if (isLooping && positionQueue.length > 0) {
-      if (isMountedRef.current) {
-        dispatch(setCurrentQueueIndex(0));
-      }
-      return positionQueue[0];
-    }
-
-    // No more positions
-    return null;
-  }, [currentQueueIndex, positionQueue, dispatch]);
-
-  // Wrap the playPosition method to include queue management
-  const wrappedPlayPosition = useCallback((position) => {
-    if (!isMountedRef.current || !apiRef.current) return;
-
-    // If no position provided, use the current queue position
-    if (!position && positionQueue.length > 0) {
-      position = positionQueue[currentQueueIndex];
-    }
-
-    if (!position) return;
-
-    apiRef.current.playPosition(
-      position,
-      getNextPosition,
-      isPlaying,
-      isLooping
-    );
-  }, [apiRef, positionQueue, currentQueueIndex, isPlaying, isLooping, getNextPosition]);
-
-  // Set the wrapped method on the API instance
-  useEffect(() => {
-    if (isMountedRef.current && apiRef.current) {
-      apiRef.current.playQueuePosition = wrappedPlayPosition;
-    }
-  }, [wrappedPlayPosition]);
-
   return (
     <ApiContext.Provider value={apiRef.current}>
       {children}

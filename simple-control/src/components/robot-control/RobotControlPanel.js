@@ -7,17 +7,16 @@ import ServoControl from "./ServoControl";
 import MoveTimeControl from "./MoveTimeControl";
 import CurrentAnglesDisplay from "./CurrentAnglesDisplay";
 import ControlButtons from "./ControlButtons";
-import PositionQueue from "./PositionQueue";
+import SafePositionQueue from "./SafePositionQueue";
 import { Card, Typography } from "../ui";
 
-const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome, onPlayPosition }) => {
+const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome }) => {
   const { newAngles, isPlaying } = useSelector((state) => state.robot);
 
   console.log("RobotControlPanel props:", {
     onRefreshAngles: !!onRefreshAngles,
     onSetAngles: !!onSetAngles,
-    onMoveToHome: !!onMoveToHome,
-    onPlayPosition: !!onPlayPosition
+    onMoveToHome: !!onMoveToHome
   });
 
   // Wrap the functions to add logging
@@ -57,7 +56,8 @@ const RobotControlPanel = ({ onRefreshAngles, onSetAngles, onMoveToHome, onPlayP
         <ControlButtons onMove={handleSetAngles} onHome={handleMoveToHome} disabled={isPlaying} />
       </Card>
 
-      <PositionQueue onPlayPosition={onPlayPosition} />
+      {/* Use the SafePositionQueue component that handles context availability internally */}
+      <SafePositionQueue />
     </>
   );
 };

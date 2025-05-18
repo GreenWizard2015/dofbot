@@ -2,68 +2,76 @@
 
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  addPositionToQueue,
-  removePositionFromQueue,
-  clearPositionQueue,
-  setIsLooping,
-  setIsPlaying,
-  setCurrentQueueIndex,
-  setNewAngles,
-  setStatus,
-  updatePositionTime
-} from "../../redux/slices/robotSlice";
+import { setNewAngles } from "../../redux/slices/robotSlice";
+import { usePositionQueue } from "../../api/PositionQueueContext";
 import styles from "../../app/page.module.css";
 import { Button, Typography, Card } from "../ui";
 
-const PositionQueue = ({ onPlayPosition }) => {
+const PositionQueue = () => {
   const dispatch = useDispatch();
+
+  // Get the position queue context
   const {
     positionQueue,
     isLooping,
     isPlaying,
-    currentQueueIndex
-  } = useSelector((state) => state.robot);
+    currentQueueIndex,
+    manager,
+    playPosition
+  } = usePositionQueue();
+
+  // We still need to access currentAngles and moveTime from Redux
+  const { currentAngles, moveTime } = useSelector((state) => state.robot);
 
   const handleAddPosition = () => {
-    dispatch(addPositionToQueue());
+    manager.addPositionToQueue(currentAngles, moveTime);
   };
 
   const handleRemovePosition = (index) => {
-    dispatch(removePositionFromQueue(index));
+    manager.removePositionFromQueue(index);
   };
 
   const handleClearQueue = () => {
-    dispatch(clearPositionQueue());
+    manager.clearPositionQueue();
   };
 
   const handleLoopToggle = (e) => {
-    dispatch(setIsLooping(e.target.checked));
+    manager.setIsLooping(e.target.checked);
   };
 
   const handlePlayToggle = () => {
+    console.log("Play/Stop button clicked, current state:", { isPlaying, queueLength: positionQueue.length });
+
     if (isPlaying) {
-      dispatch(setIsPlaying(false));
+      console.log("Stopping playback");
+      // When stopping, immediately set isPlaying to false to stop the recursion
+      manager.setIsPlaying(false);
     } else {
       if (positionQueue.length > 0) {
+        // Start from the first position
         const position = positionQueue[0];
 
         // Check if position is a valid object with angles array
         if (!position || !position.angles || !Array.isArray(position.angles)) {
-          dispatch(setStatus("Error: Invalid position format in queue"));
+          console.error("Invalid position format:", position);
           return;
         }
 
+        console.log("Starting playback from position:", position);
+
         // First set the current queue index to ensure we start from the beginning
-        dispatch(setCurrentQueueIndex(0));
+        manager.setCurrentQueueIndex(0);
 
         // Then set isPlaying to true
-        dispatch(setIsPlaying(true));
+        manager.setIsPlaying(true);
 
-        // Add a small delay to ensure the Redux state is updated before calling onPlayPosition
+        // Add a small delay to ensure the state is updated before calling playPosition
         setTimeout(() => {
-          onPlayPosition(position);
+          console.log("Calling playPosition after delay");
+          playPosition(position);
         }, 100);
+      } else {
+        console.log("Cannot play: Queue is empty");
       }
     }
   };
@@ -73,18 +81,20 @@ const PositionQueue = ({ onPlayPosition }) => {
 
     // Check if position is a valid object with angles array
     if (!position || !position.angles || !Array.isArray(position.angles)) {
-      dispatch(setStatus("Error: Invalid position format in queue"));
       return;
     }
 
+    // We still need to use Redux for this since it affects the servo controls
     dispatch(setNewAngles(position.angles));
   };
 
   const handleTimeChange = (index, newTime) => {
     // Ensure time is a valid number and within reasonable limits
     const time = Math.max(100, Math.min(5000, parseInt(newTime) || 1000));
-    dispatch(updatePositionTime({ index, time }));
+    manager.updatePositionTime(index, time);
   };
+
+  // We don't need to define playPosition here as we're using the one from the context
 
   return (
     <Card className={styles.positionQueue}>

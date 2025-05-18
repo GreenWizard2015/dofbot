@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '../redux/redux-store';
 import { useEffect, useState } from 'react';
 import { ApiProvider } from '../api/ApiContext';
+import { PositionQueueProvider } from '../api/PositionQueueContext';
 
 export function Providers({ children }) {
   const [isClient, setIsClient] = useState(false);
@@ -23,12 +24,14 @@ export function Providers({ children }) {
     );
   }
 
-  // Once on the client, render with PersistGate and ApiProvider
+  // Once on the client, render with PersistGate, ApiProvider, and PositionQueueProvider
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <ApiProvider>
-          {children}
+          <PositionQueueProvider>
+            {children}
+          </PositionQueueProvider>
         </ApiProvider>
       </PersistGate>
     </Provider>

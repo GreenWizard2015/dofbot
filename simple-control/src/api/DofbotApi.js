@@ -7,8 +7,6 @@
  * @property {Function} refreshAngles - Refresh the current angles
  * @property {Function} moveToHome - Move to home position
  * @property {Function} setAngles - Set the robot angles
- * @property {Function} playPosition - Play a position
- * @property {Function} playQueuePosition - Play a position from the queue with queue management
  * @property {Function} cleanup - Clean up resources
  * @property {number} moveTime - The move time in milliseconds
  * @property {Array<number>} currentAngles - The current angles of the robot
@@ -249,62 +247,6 @@ class DofbotApi {
       const errorStatus = `Error setting angles: ${error.message}`;
       this.callbacks.onStatusChange(errorStatus);
       return false;
-    }
-  }
-
-  /**
-   * Play a position from the queue
-   * @param {Object} position The position to play
-   * @param {Function} getNextPosition Function to get the next position
-   * @param {boolean} isPlaying Whether playback is active
-   * @param {boolean} isLooping Whether to loop playback
-   * @returns {Promise<void>}
-   */
-  async playPosition(position, getNextPosition, isPlaying, isLooping) {
-    if (!this.connected || !this.ipAddress || !isPlaying || !this.isMounted) return;
-
-    try {
-      // Check if position is a valid object with angles array and time
-      if (!position || !position.angles || !Array.isArray(position.angles)) {
-        throw new Error("Invalid position format");
-      }
-
-      const { angles, time } = position;
-      this.newAngles = [...angles];
-      this.callbacks.onNewAnglesChange([...angles]);
-
-      const success = await this.setAngles(angles, time);
-
-      // Only continue if still playing and mounted
-      if (success && isPlaying && this.isMounted) {
-        const nextPosition = getNextPosition(isLooping);
-
-        if (nextPosition) {
-          // Use setTimeout to ensure state is updated before next call
-          setTimeout(() => {
-            this.playPosition(nextPosition, getNextPosition, isPlaying, isLooping);
-          }, 50);
-        } else {
-          // End of queue, stop playing
-          this.callbacks.onPlayingChange(false);
-        }
-      }
-    } catch (error) {
-      const errorStatus = `Error playing position: ${error.message}`;
-      this.callbacks.onStatusChange(errorStatus);
-      this.callbacks.onPlayingChange(false);
-    }
-  }
-
-  /**
-   * Play a position from the queue with queue management
-   * This is a placeholder that will be replaced by the ApiContext
-   * @param {Object} position The position to play
-   */
-  playQueuePosition(position) {
-    // This is a placeholder implementation that will be overridden by ApiContext
-    if (position && Array.isArray(position.angles)) {
-      this.playPosition(position, () => null, true, false);
     }
   }
 }

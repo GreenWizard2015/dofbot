@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import styles from "../app/page.module.css";
-import {
-  setIsPlaying,
-  setCurrentQueueIndex
-} from "../redux/slices/robotSlice";
+// No need to import queue-related actions from Redux anymore
 import { useSafeApi } from "../api/ApiContext";
 
 import ConnectionPanel from "./connection/ConnectionPanel";
@@ -15,7 +12,6 @@ import CameraFeed from "./camera/CameraFeed";
 import { Typography } from "./ui";
 
 const DofbotController = () => {
-  const dispatch = useDispatch();
   const { connected, newAngles, moveTime } = useSelector((state) => state.robot);
   const [isApiReady, setIsApiReady] = useState(false);
 
@@ -32,12 +28,7 @@ const DofbotController = () => {
     }
   }, [api, isApiReady]);
 
-  // Reset queue state on mount
-  useEffect(() => {
-    // Reset queue-related state on mount to ensure it's not persisted
-    dispatch(setIsPlaying(false));
-    dispatch(setCurrentQueueIndex(0));
-  }, [dispatch]);
+  // No need to reset queue state on mount anymore as it's handled by the PositionQueueContext
 
   // Safe API call functions that check if API is available first
   const safeConnectToRobot = () => {
@@ -121,27 +112,6 @@ const DofbotController = () => {
     }
   };
 
-  const safePlayQueuePosition = (position) => {
-    console.log("safePlayQueuePosition called, API available:", !!api, "connected:", api?.connected);
-    if (api) {
-      if (api.connected) {
-        console.log("Calling api.playQueuePosition with:", position);
-        api.playQueuePosition(position);
-      } else {
-        console.warn("Cannot play position: Not connected to robot");
-        // Try to connect first
-        api.connectToRobot().then(() => {
-          if (api.connected) {
-            console.log("Connected successfully, now playing position");
-            api.playQueuePosition(position);
-          }
-        });
-      }
-    } else {
-      console.warn("Cannot play position: API not ready");
-    }
-  };
-
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -154,7 +124,6 @@ const DofbotController = () => {
                 onRefreshAngles={safeRefreshAngles}
                 onSetAngles={safeSetAngles}
                 onMoveToHome={safeMoveToHome}
-                onPlayPosition={safePlayQueuePosition}
               />
               <CameraFeed />
             </div>
