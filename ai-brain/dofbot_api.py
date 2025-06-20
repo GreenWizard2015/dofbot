@@ -39,7 +39,7 @@ class DofbotApi:
         self.ip = ip
         self.port = port
         self.connected = False
-        self.move_to_home()
+        self.angles() # Test the connection
     
     def _call(self, method: str, timeout: float = None) -> Optional[Dict[str, Any]]:
         """Call the API with the given method and parameters."""

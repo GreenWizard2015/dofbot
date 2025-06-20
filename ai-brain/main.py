@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import logging
-import pyrealsense2 as rs
 from dofbot_api import DofbotApi
 from utils import all_devices, get_frame
 
@@ -86,7 +85,8 @@ def control_loop():
         ord('d'): (2, 1), ord('c'): (2, -1),  # Servo 3
         ord('f'): (3, 1), ord('v'): (3, -1),  # Servo 4
         ord('g'): (4, 1), ord('b'): (4, -1),  # Servo 5
-        ord('h'): (5, 1), ord('n'): (5, -1),  # Servo 6
+        # disable gripper, because it's holding the spoon/fork
+        # ord('h'): (5, 1), ord('n'): (5, -1),  # Servo 6
     }
 
     logger.info("Control loop started. Press ESC to exit, 1-5 to set step size")
@@ -111,6 +111,8 @@ def control_loop():
 
 if __name__ == "__main__":
     logger.info(f"Found {len(pipelines)} RealSense cameras")
+    # Move to home position, but with gripper closed  
+    robot.set_angles([90, 90, 90, 90, 90, 180], time=1)
 
     try:
         control_loop()
